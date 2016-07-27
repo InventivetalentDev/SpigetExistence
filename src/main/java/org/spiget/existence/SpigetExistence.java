@@ -117,7 +117,11 @@ public class SpigetExistence {
 			log.info("Checking #" + counter + " (" + id + ")");
 
 			try {
-				org.jsoup.nodes.Document resourceDocument = SpigetClient.get(SpigetClient.BASE_URL + "resources/" + id).getDocument();
+				SpigetResponse response = SpigetClient.get(SpigetClient.BASE_URL + "resources/" + id);
+				if (response.getCode() == 503) {// Hit Cloudflare -> ignore it
+					continue;
+				}
+				org.jsoup.nodes.Document resourceDocument = response.getDocument();
 				// Create a fake listed-resource, so stuff doesn't go crazy while parsing
 				ListedResource listedResource = new ListedResource(id, "");
 				listedResource.setIcon(new SpigetIcon("", ""));
