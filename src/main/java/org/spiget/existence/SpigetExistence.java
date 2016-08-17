@@ -100,12 +100,18 @@ public class SpigetExistence {
 
 		int offset = config.get("offset").getAsInt();
 
+		long start = System.currentTimeMillis();
+		databaseClient.updateStatus("existence.start", start);
+		databaseClient.updateStatus("existence.end", 0);
+
 		int counter = 0;
 		int suspectCounter = 0;
 		FindIterable<Document> iterable = databaseClient.getResourcesCollection().find();
 		Set<Document> set = new HashSet<>();
 		for (Document document : iterable)
 			set.add(document);
+
+		databaseClient.updateStatus("existence.document.amount", set.size());
 
 		for (Document document : set) {
 			counter++;
@@ -115,6 +121,9 @@ public class SpigetExistence {
 				continue;
 			}
 			log.info("Checking #" + counter + " (" + id + ")");
+
+			databaseClient.updateStatus("existence.document.index", counter);
+			databaseClient.updateStatus("existence.document.id", id);
 
 			try {
 				SpigetResponse response = SpigetClient.get(SpigetClient.BASE_URL + "resources/" + id);
@@ -150,6 +159,7 @@ public class SpigetExistence {
 					log.warn("Incomplete data -> Setting Status#1");
 					setResourceStatus(id, 1);
 					suspectCounter++;
+					databaseClient.updateStatus("existence.document.suspects", suspectCounter);
 					continue;
 				}
 
@@ -160,13 +170,18 @@ public class SpigetExistence {
 					log.log(Level.WARN, "Read timeout -> Setting Status#3", throwable);
 					setResourceStatus(id, 3);
 					suspectCounter++;
+					databaseClient.updateStatus("existence.document.suspects", suspectCounter);
 				} else {
 					log.log(Level.WARN, "Unknown exception -> Setting Status#2", throwable);
 					setResourceStatus(id, 2);
 					suspectCounter++;
+					databaseClient.updateStatus("existence.document.suspects", suspectCounter);
 				}
 			}
 		}
+
+		long end = System.currentTimeMillis();
+		databaseClient.updateStatus("existence.end", end);
 
 		log.info("Done! " + suspectCounter + "/" + counter + " resources are probably deleted.");
 	}
