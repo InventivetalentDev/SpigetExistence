@@ -3,6 +3,7 @@ package org.spiget.existence;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Projections;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.bson.Document;
@@ -106,7 +107,7 @@ public class SpigetExistence {
 
 		int counter = 0;
 		int suspectCounter = 0;
-		FindIterable<Document> iterable = databaseClient.getResourcesCollection().find();
+		FindIterable<Document> iterable = databaseClient.getResourcesCollection().find().projection(Projections.include("_id"));
 		Set<Document> set = new HashSet<>();
 		for (Document document : iterable)
 			set.add(document);
