@@ -185,6 +185,8 @@ public class SpigetExistence {
 				log.debug("> Reset Client");
 				HtmlUnitClient.disposeClient();
 				Runtime.getRuntime().gc();
+
+				databaseClient.updateSystemStats("existence.");
 			}
 		}
 
