@@ -7,6 +7,7 @@ import com.mongodb.client.model.Projections;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.bson.Document;
+import org.spiget.client.HtmlUnitClient;
 import org.spiget.client.SpigetClient;
 import org.spiget.client.SpigetResponse;
 import org.spiget.data.author.ListedAuthor;
@@ -178,6 +179,12 @@ public class SpigetExistence {
 					suspectCounter++;
 					databaseClient.updateStatus("existence.document.suspects", suspectCounter);
 				}
+			}
+
+			if (counter % 10 ==  0) {
+				log.debug("> Reset Client");
+				HtmlUnitClient.disposeClient();
+				Runtime.getRuntime().gc();
 			}
 		}
 
