@@ -169,7 +169,7 @@ public class SpigetExistence {
 				resetResourceStatus(id);
 
 				// Update download count
-				updateDownloads(id, resource.getDownloads());
+				if (resource.getDownloads() > 0) { updateDownloads(id, resource.getDownloads()); }
 			} catch (Throwable throwable) {
 				if (throwable.getMessage() != null && throwable.getMessage().contains("Read timed out")) {
 					log.log(Level.WARN, "Read timeout -> Setting Status#3", throwable);
@@ -184,7 +184,7 @@ public class SpigetExistence {
 				}
 			}
 
-			if (counter % 10 ==  0) {
+			if (counter % 10 == 0) {
 				log.debug("> Reset Client");
 				HtmlUnitClient.disposeClient();
 				Runtime.getRuntime().gc();
@@ -206,7 +206,6 @@ public class SpigetExistence {
 	void resetResourceStatus(int id) {
 		databaseClient.getResourcesCollection().updateOne(new Document("_id", id), new Document("$unset", new Document("existenceStatus", "")));
 	}
-
 
 	void updateDownloads(int id, int downloads) {
 		databaseClient.getResourcesCollection().updateOne(new Document("_id", id), new Document("$set", new Document("downloads", downloads)));
